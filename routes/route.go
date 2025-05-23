@@ -92,4 +92,5 @@ func SetupGameSessionRoutes(router *gin.Engine, db *gorm.DB) {
 	
 	gameGroup.POST("/create", utils.AuthMiddleWare(), game.CreateGame)
 	gameGroup.GET("/list", utils.AuthMiddleWare(), game.ListGames)
+	gameGroup.GET("/list/:code", utils.AuthMiddleWare(), game.ListGamesByCode)
 }

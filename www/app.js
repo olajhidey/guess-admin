@@ -76,6 +76,9 @@ const Register = {
           <h4>Register</h4>
         </div>
         <div class="card-body">
+          <div v-if="alertMessage" class="alert alert-danger">
+            {{ alertMessage }}
+          </div>
           <form @submit.prevent="handleRegister">
             <div class="mb-3">
               <label>Username</label>
@@ -127,12 +130,12 @@ const Register = {
 
                 if (request.status === 200) {
                     const response = request.data;
-                    this.$router.push('/login');
                     this.saveTokenToLocalStorage(response.token);
+                    this.$router.push('/login');
                 }
             } catch (err) {
                 this.isLoading = false;
-                console.error(err);
+                console.log(err);
                 this.alertMessage = err.response.data.error
             }
         },
@@ -193,8 +196,8 @@ const DashboardLayout = {
     methods: {
         logout() {
             console.log('Logging out...');
-            this.$router.push('/');
             localStorage.removeItem('token');
+            this.$router.push('/login');
         },
         closeSidebar() {
             const sidebarEl = this.$refs.mobileSidebar;
@@ -279,7 +282,12 @@ const DashboardHome = {
             this.fetchTopics(),
             this.fetchGames()
         ]).catch(err => {
-            console.error(err);
+            if(err.status === 401){
+                console.log('Unauthorized access. Redirecting to login...');
+                window.localStorage.removeItem('token');
+                this.$router.push('/login');
+            }
+            console.error("fetching data err",err);
         })
     },
     data() {
@@ -307,6 +315,12 @@ const DashboardHome = {
                 this.topics = request.data;
                 this.totalTopics = this.topics.length;
             } catch (err) {
+              console.log("topic err", err.status);
+              if(err.status === 401){
+                console.log('Unauthorized access. Redirecting to login...');
+                window.localStorage.removeItem('token');
+                this.$router.push('/login');
+              }
                 console.error(err);
             }
         },
@@ -618,7 +632,7 @@ const QuestionsPage = {
               <td colspan="4" class="text-center">No questions available.</td>
             </tr>
             <tr v-for="q in questions" :key="q.ID">
-              <td><a href="{{ q.image_url }}">{{ q.image_url }}</a></td>
+              <td><img :src="q.image_url" class="img-fluid rounded mb-4" style="width:80px; height:50px;"/></td>
               <td>{{ q.option1 }}</td>
               <td>{{ q.option2 }}</td>
               <td>{{ q.option3 }}</td>
@@ -1038,10 +1052,8 @@ const GameSessionPage = {
             <thead class="table-light">
               <tr>
                 <th>Topic</th>
-                <th>Player One</th>
-                <th>Score</th>
-                <th>Player Two</th>
-                <th>Score</th>
+                <th>Player Name</th>
+                <th>Player Score</th>
                 <th>Game Code</th>
                 <th class="text-end">Actions</th>
               </tr>
@@ -1052,10 +1064,8 @@ const GameSessionPage = {
               </tr>
               <tr v-for="session in gameSessions" :key="session.ID">
                 <td>{{ session.topic_id }}</td>
-                <td>{{ session.player_one_name }}</td>
-                <td>{{ session.player_one_score }}</td>
-                <td>{{ session.player_two_name }}</td>
-                <td>{{ session.player_two_score }}</td>
+                <td>{{ session.player_name }}</td>
+                <td>{{ session.player_score }}</td>
                 <td>{{ session.code }}</td>
                 <td class="text-end">
                   <!-- Placeholder for future actions -->

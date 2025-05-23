@@ -24,10 +24,8 @@ func (gameController *GameController) CreateGame(ctx *gin.Context) {
 	insertGame := model.Game{
 		Code: gameRequest.Code,
 		TopicId: gameRequest.TopicId,
-		PlayerOneName: gameRequest.PlayerOneName,
-		PlayerTwoName: gameRequest.PlayerTwoName,
-		PlayerOneScore: gameRequest.PlayerOneScore,
-		PlayerTwoScore: gameRequest.PlayerTwoScore,
+		PlayerName: gameRequest.PlayerName,
+		PlayerScore: gameRequest.PlayerScore,
 	}
 	err := gameRepository.Create(&insertGame)
 	if utils.ErrorNotNil(err) {
@@ -46,3 +44,18 @@ func (gameController *GameController) ListGames(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, games)
 }
+func (gameController *GameController) ListGamesByCode(ctx *gin.Context) {
+	code := ctx.Param("code")
+	gameRepository := repository.GameRepository{DB: gameController.DB}
+	games, err := gameRepository.ListByCode(code)
+	if utils.ErrorNotNil(err){
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get list of games"})
+		return
+	}
+	ctx.JSON(http.StatusOK, games)
+}
+
+// https://www.thesportsdb.com/images/media/player/thumb/kgojrb1711448509.jpg
+// https://www.thesportsdb.com/images/media/player/thumb/75kyl01734192183.jpg
+// https://www.thesportsdb.com/images/media/player/thumb/w561fs1732109007.jpg
+// https://www.thesportsdb.com/images/media/player/cutout/29024814.png

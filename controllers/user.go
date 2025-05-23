@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -54,7 +54,7 @@ func (user *UserController) Register(ctx *gin.Context){
 
 	validateRegisterFormRequest(&registerRequest, ctx)
 	hashedPassword, _ := utils.HashPassword(registerRequest.Password)
-	_ = userRepository.CreateUser(&model.User{
+	err := userRepository.CreateUser(&model.User{
 		UUID: utils.GenerateUuid(),
 		Username: registerRequest.Username,
 		Password: hashedPassword,
@@ -62,7 +62,13 @@ func (user *UserController) Register(ctx *gin.Context){
 
 		utils.LogMessage(registerRequest.Username)
 
-	// checkIfUserExists(result, ctx)
+	utils.LogMessage(err)
+
+	if utils.ErrorNotNil(err) || errors.Is(err, gorm.ErrDuplicatedKey) {
+		ctx.JSON(http.StatusConflict, gin.H{"error": "User already exists"})
+		return
+	}
+
 	ctx.JSON(http.StatusCreated, gin.H{"message": "User created successfully"})
 	
 
@@ -110,17 +116,6 @@ func validateUserDetails(loginRequest model.LoginForm, result *model.User, ctx *
 func validateRegisterFormRequest(registerRequest *model.RegisterForm, ctx *gin.Context) {
 	if err := ctx.ShouldBindBodyWithJSON(registerRequest); utils.ErrorNotNil(err) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Fill in the required information"})
-		return
-	}
-}
-
-func checkIfUserExists(result error, ctx *gin.Context) {
-	if strings.Contains(result.Error(), "Error 1062") {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Email already exists"})
-		return
-	} else {
-		utils.LogMessage(result.Error())
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
 	}
 }

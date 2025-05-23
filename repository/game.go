@@ -23,3 +23,12 @@ func (gameRepo *GameRepository) List() ([]model.Game, error) {
 	}
 	return games, nil
 }
+
+func (gameRepo *GameRepository) ListByCode(code string) ([]model.Game, error){
+	var games []model.Game
+
+	if err := gameRepo.DB.Where("code = ?", code).Find(&games).Error; err != nil {
+		return nil, err
+	}
+	return games, nil
+}

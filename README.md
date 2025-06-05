@@ -1,5 +1,5 @@
 # Guess App Adnin 
-Guess Admin is a Go-based backend application designed to manage user-related data for both [Guess-app-web]() and [Guess-app-android](https://github.com/olajhidey/guess-app-android.git). This project currently uses SQLite for local development and testing.
+Guess Admin is a Go-based backend application designed to manage user-related data for both [Guess-app-web](https://github.com/olajhidey/guess-app-web) and [Guess-app-android](https://github.com/olajhidey/guess-app-android.git). This project currently uses SQLite for local development and testing.
 
 ## 🚀 Getting Started
 

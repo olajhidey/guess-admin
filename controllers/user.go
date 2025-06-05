@@ -29,7 +29,11 @@ func (user *UserController) Login(ctx *gin.Context){
 		return
 	}
 
-	validateUserDetails(loginRequest, result, ctx)
+	if result.Username == "" || !utils.CheckPassword(result.Password,loginRequest.Password) {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		return
+	}
+
 	claims := utils.CustomClaims{
 		UUID: result.UUID,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -106,12 +110,6 @@ func checkLoginFormRequest(loginRequest *model.LoginForm, ctx *gin.Context) {
 	}
 }
 
-func validateUserDetails(loginRequest model.LoginForm, result *model.User, ctx *gin.Context) {
-	if result.Username == "" || !utils.CheckPassword(result.Password,loginRequest.Password) {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
-		return
-	}
-}
 
 func validateRegisterFormRequest(registerRequest *model.RegisterForm, ctx *gin.Context) {
 	if err := ctx.ShouldBindBodyWithJSON(registerRequest); utils.ErrorNotNil(err) {

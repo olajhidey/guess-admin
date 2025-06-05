@@ -35,6 +35,6 @@ type QuestionForm struct {
 type GameForm struct {
 	Code        string `json:"code" binding:"required"`
 	PlayerName  string `json:"player_name" binding:"required"`
-	PlayerScore int    `json:"player_score" binding:"required"`
+	PlayerScore string    `json:"player_score" binding:"required"`
 	TopicId     string `json:"topic_id" binding:"required"`
 }

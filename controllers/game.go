@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/olajhidey/guess-admin/model"
@@ -21,11 +22,12 @@ func (gameController *GameController) CreateGame(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
+	num, _ := strconv.Atoi(gameRequest.PlayerScore)
 	insertGame := model.Game{
 		Code: gameRequest.Code,
 		TopicId: gameRequest.TopicId,
 		PlayerName: gameRequest.PlayerName,
-		PlayerScore: gameRequest.PlayerScore,
+		PlayerScore: num,
 	}
 	err := gameRepository.Create(&insertGame)
 	if utils.ErrorNotNil(err) {
